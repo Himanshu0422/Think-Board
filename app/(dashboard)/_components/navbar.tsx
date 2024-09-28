@@ -34,7 +34,6 @@ export function Navbar() {
                 borderRadius: "6px",
                 border: "1px solid #E5E7EB",
                 justifyContent: "space-between",
-                backgroundColor: "white",
               },
             },
           }}
