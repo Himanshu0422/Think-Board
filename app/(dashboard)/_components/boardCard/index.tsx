@@ -49,7 +49,6 @@ export function BoardCard({
   });
 
   const toggleFavourite = () => {
-    // return
     if (isFavourite) {
       unfavourite({ id: id as Id<"boards"> }).catch(() =>
         toast.error("Failed to unfavourite board")
@@ -63,8 +62,7 @@ export function BoardCard({
 
   return (
     <Link 
-      // href={`/boards/${id}`}
-      href={'/'}
+      href={`/boards/${id}`}
     >
       <div className="group aspect-[100/127] border rounded-lg flex flex-col justify-center overflow-hidden">
         <div className="relative flex-1 bg-amber-50">
