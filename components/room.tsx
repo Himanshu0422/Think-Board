@@ -1,5 +1,7 @@
 "use client";
 
+import { Layer } from "@/types/canvas";
+import { LiveList, LiveMap, LiveObject } from "@liveblocks/client";
 import {
   ClientSideSuspense,
   RoomProvider,
@@ -23,6 +25,10 @@ export const Room = ({ children, roomId, fallback }: RoomProps) => {
           selection: [],
           pencilDraft: null,
           pencilColor: null,
+        }}
+        initialStorage={{
+          layers: new LiveMap<string, LiveObject<Layer>>(),
+          layerIds: new LiveList<string>([]),
         }}
       >
         <ClientSideSuspense fallback={fallback}>
