@@ -3,11 +3,10 @@
 import { Layer } from "@/types/canvas";
 import { LiveList, LiveMap, LiveObject } from "@liveblocks/client";
 import {
-  ClientSideSuspense,
-  RoomProvider,
   LiveblocksProvider,
+  RoomProvider
 } from "@liveblocks/react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 interface RoomProps {
   children: React.ReactNode;
@@ -16,8 +15,18 @@ interface RoomProps {
 }
 
 export const Room = ({ children, roomId, fallback }: RoomProps) => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timeoutId);
+  }, [roomId]);
+
   return (
-    <LiveblocksProvider authEndpoint={'/api/liveblocks-auth'}>
+    <LiveblocksProvider authEndpoint={"/api/liveblocks-auth"}>
       <RoomProvider
         id={roomId}
         initialPresence={{
@@ -31,9 +40,7 @@ export const Room = ({ children, roomId, fallback }: RoomProps) => {
           layerIds: new LiveList<string>([]),
         }}
       >
-        <ClientSideSuspense fallback={fallback}>
-          {() => children}
-        </ClientSideSuspense>
+        {loading ? fallback : children}
       </RoomProvider>
     </LiveblocksProvider>
   );
