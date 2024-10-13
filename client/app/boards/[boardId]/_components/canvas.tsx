@@ -38,6 +38,7 @@ import { Path } from "./path";
 import { SelectionBox } from "./selectionBox";
 import { SelectionTools } from "./selectionTools";
 import { Toolbar } from "./toolbar";
+import Chat from "./chat";
 
 const MAX_LAYERS = 100;
 
@@ -46,6 +47,7 @@ interface CanvasProps {
 }
 
 const Canvas = ({ boardId }: CanvasProps) => {
+  const currentUser = useSelf();
   const layerIds = useStorage((root) => root.layerIds);
   const pencilDraft = useSelf((self) => self.presence.pencilDraft);
 
@@ -140,7 +142,7 @@ const Canvas = ({ boardId }: CanvasProps) => {
         }
       }
 
-      setCanvasState({mode: CanvasMode.Translating, current: point });
+      setCanvasState({ mode: CanvasMode.Translating, current: point });
     },
     [canvasState]
   );
@@ -423,10 +425,13 @@ const Canvas = ({ boardId }: CanvasProps) => {
     };
   }, [history]);
 
+  const [showChat, setShowChat] = useState(false);
+
   return (
     <main className="h-full w-full relative bg-neutral-100 touch-none">
-      <Info boardId={boardId} />
-      <Participants />
+      <Info boardId={boardId} setShowChat={setShowChat} />
+        <Participants showChat={showChat} />
+        <Chat isOpen={showChat} onClose={() => setShowChat(false)} boardId={boardId} username={currentUser?.info?.name!}/>
       <Toolbar
         canvasState={canvasState}
         setCanvasState={setCanvasState}
@@ -460,15 +465,15 @@ const Canvas = ({ boardId }: CanvasProps) => {
             ))}
           <SelectionBox onResizeHandlePointerDown={onResizeHandlePointerDown} />
           {canvasState.mode === CanvasMode.SelectionNet &&
-          canvasState.current && (
-            <rect
-              className="fill-blue-500/5 stroke-blue-500 stroke-1"
-              x={Math.min(canvasState.origin.x, canvasState.current.x)}
-              y={Math.min(canvasState.origin.y, canvasState.current.y)}
-              width={Math.abs(canvasState.origin.x - canvasState.current.x)}
-              height={Math.abs(canvasState.origin.y - canvasState.current.y)}
-            />
-          )}
+            canvasState.current && (
+              <rect
+                className="fill-blue-500/5 stroke-blue-500 stroke-1"
+                x={Math.min(canvasState.origin.x, canvasState.current.x)}
+                y={Math.min(canvasState.origin.y, canvasState.current.y)}
+                width={Math.abs(canvasState.origin.x - canvasState.current.x)}
+                height={Math.abs(canvasState.origin.y - canvasState.current.y)}
+              />
+            )}
           <CursorPresence />
           {pencilDraft && pencilDraft.length > 0 && (
             <Path

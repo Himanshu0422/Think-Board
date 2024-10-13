@@ -15,6 +15,7 @@ import Link from "next/link";
 
 interface InfoProps {
   boardId: string;
+  setShowChat: (prev: any) => void
 }
 
 const font = Poppins({
@@ -26,7 +27,7 @@ const TabSeparator = () => {
   return <div className="text-neutral-300 px-1.5">|</div>;
 };
 
-export const Info = ({ boardId }: InfoProps) => {
+export const Info = ({ boardId, setShowChat }: InfoProps) => {
   const { onOpen } = useRenameModal();
 
   const data = useQuery(api.board.get, {
@@ -60,6 +61,16 @@ export const Info = ({ boardId }: InfoProps) => {
           onClick={() => onOpen(data._id, data.title)}
         >
           {data.title}
+        </Button>
+      </Hint>
+      <TabSeparator />
+      <Hint label="Open chat" side="bottom" sideOffset={10}>
+        <Button
+          size="icon"
+          variant="board"
+          onClick={() => setShowChat((prev: any) => !prev)}
+        >
+          Chat
         </Button>
       </Hint>
       <TabSeparator />
