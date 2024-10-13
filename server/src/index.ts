@@ -3,6 +3,7 @@ import { Server } from 'socket.io';
 import { connectRedis } from './redis';
 import { socketHandler } from './socket';
 import app from './server';
+import { startMessageConsumer } from './kafka';
 
 const dotenv = require('dotenv');
 require('dotenv').config();
@@ -20,6 +21,7 @@ const io = new Server(server, {
 // Initialize Redis and Socket.IO
 connectRedis();
 socketHandler(io);
+startMessageConsumer();
 
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
