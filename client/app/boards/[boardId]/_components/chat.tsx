@@ -1,16 +1,16 @@
 "use client";
 
+import axios from "axios";
 import { FC, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
 interface ChatProps {
   isOpen: boolean;
   onClose: () => void;
-  boardId: string; // Add boardId prop
-  username: string; // Add username prop
+  boardId: string;
+  username: string;
 }
 
-// Replace with your server URL
 const SOCKET_SERVER_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const Chat: FC<ChatProps> = ({ isOpen, onClose, boardId, username }) => {
@@ -27,15 +27,27 @@ const Chat: FC<ChatProps> = ({ isOpen, onClose, boardId, username }) => {
     newSocket.emit("joinBoard", { boardId, username });
 
     // Listen for incoming messages
-    newSocket.on("receiveMessage", (message: string) => {
+    newSocket.on("receiveMessage", (message: any) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
+
+    // Fetch initial messages from the database
+    fetchMessages();
 
     // Clean up on component unmount
     return () => {
       newSocket.disconnect();
     };
   }, [boardId, username]);
+
+  const fetchMessages = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/boards/${boardId}/messages`);
+      setMessages(response.data); // Set the fetched messages
+    } catch (error) {
+      console.error("Failed to fetch messages:", error);
+    }
+  };
 
   const handleSendMessage = () => {
     if (inputMessage.trim() && socket) {
@@ -56,14 +68,20 @@ const Chat: FC<ChatProps> = ({ isOpen, onClose, boardId, username }) => {
           &times;
         </button>
       </div>
-      <div className="p-4 overflow-y-auto max-h-[80vh]">
-        <div className="flex flex-col gap-2">
-          {messages.map((msg, index) => (
-            <div key={index} className="p-2 bg-gray-100 rounded-md">
-              <strong>{msg.username}: </strong> {msg.message}
-            </div>
-          ))}
-        </div>
+      <div className="p-4 overflow-y-auto max-h-[80vh] flex flex-col">
+        {messages.length === 0 ? (
+          <div className="flex-grow flex items-center justify-center">
+            <span className="text-gray-500">No Messages</span>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {messages.map((msg, index) => (
+              <div key={index} className="p-2 bg-gray-100 rounded-md">
+                <strong>{msg.username}: </strong> {msg.message}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       <div className="p-4 border-t flex gap-[2%] justify-center items-center">
         <input
