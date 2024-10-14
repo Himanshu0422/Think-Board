@@ -85,29 +85,26 @@ export async function startMessageConsumer() {
       console.log("No messages to process.");
       return;
     }
-
-    // Process all messages in the queue
-    for (const msg of messageQueue) {
-      try {
-        await prismaClient.message.create({
-          data: {
-            username: msg.username,
-            message: msg.message,
-            boardId: msg.boardId,
-            timestamp: msg.timestamp,
-          },
-        });
-        console.log(`Processed message from ${msg.username}`);
-      } catch (err) {
-        console.error("Failed to store message:", err);
-        // Optionally, you can add retry logic here if needed
-      }
+  
+    try {
+      await prismaClient.message.createMany({
+        data: messageQueue.map((msg) => ({
+          username: msg.username,
+          message: msg.message,
+          boardId: msg.boardId,
+          timestamp: msg.timestamp,
+        })),
+        skipDuplicates: true, // Optional: Prevent inserting duplicate records
+      });
+      console.log(`Processed ${messageQueue.length} messages`);
+    } catch (err) {
+      console.error("Failed to store messages:", err);
+    } finally {
+      // Clear the queue after processing
+      messageQueue.length = 0;
     }
-
-    // Clear the queue after processing
-    messageQueue.length = 0;
-  };
+  };  
 
   // Set an interval to process messages every 10 seconds
-  setInterval(processMessages, 10 * 1000);
+  setInterval(processMessages, 60 * 1000);
 }
