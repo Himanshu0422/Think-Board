@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
 interface ChatProps {
@@ -18,32 +18,35 @@ const Chat: FC<ChatProps> = ({ isOpen, onClose, boardId, username }) => {
   const [messages, setMessages] = useState<any[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
 
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    // Connect to socket server
     const newSocket = io(SOCKET_SERVER_URL);
     setSocket(newSocket);
 
-    // Join the board room
     newSocket.emit("joinBoard", { boardId, username });
 
-    // Listen for incoming messages
     newSocket.on("receiveMessage", (message: any) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
 
-    // Fetch initial messages from the database
     fetchMessages();
 
-    // Clean up on component unmount
     return () => {
       newSocket.disconnect();
     };
   }, [boardId, username]);
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   const fetchMessages = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/boards/${boardId}/messages`);
-      setMessages(response.data); // Set the fetched messages
+      const response = await axios.get(
+        `${SOCKET_SERVER_URL}/api/boards/${boardId}/messages`
+      );
+      setMessages(response.data);
     } catch (error) {
       console.error("Failed to fetch messages:", error);
     }
@@ -56,6 +59,10 @@ const Chat: FC<ChatProps> = ({ isOpen, onClose, boardId, username }) => {
     }
   };
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+  };
+
   return (
     <div
       className={`fixed top-2 bottom-2 h-[calc(100vh-16px)] w-[400px] bg-white shadow-lg transition-transform duration-300 ease-in-out ${
@@ -64,7 +71,10 @@ const Chat: FC<ChatProps> = ({ isOpen, onClose, boardId, username }) => {
     >
       <div className="flex justify-between items-center p-4 border-b">
         <h2 className="text-xl font-semibold">Chat</h2>
-        <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-3xl">
+        <button
+          onClick={onClose}
+          className="text-gray-500 hover:text-gray-800 text-3xl"
+        >
           &times;
         </button>
       </div>
@@ -80,6 +90,8 @@ const Chat: FC<ChatProps> = ({ isOpen, onClose, boardId, username }) => {
                 <strong>{msg.username}: </strong> {msg.message}
               </div>
             ))}
+            {/* Invisible div to track the bottom */}
+            <div ref={messagesEndRef} />
           </div>
         )}
       </div>

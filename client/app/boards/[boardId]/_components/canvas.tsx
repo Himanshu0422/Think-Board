@@ -39,6 +39,7 @@ import { SelectionBox } from "./selectionBox";
 import { SelectionTools } from "./selectionTools";
 import { Toolbar } from "./toolbar";
 import Chat from "./chat";
+import { Loading } from "./loading";
 
 const MAX_LAYERS = 100;
 
@@ -427,11 +428,18 @@ const Canvas = ({ boardId }: CanvasProps) => {
 
   const [showChat, setShowChat] = useState(false);
 
-  return (
+  return !layerIds ? (
+    <Loading />
+  ) : (
     <main className="h-full w-full relative bg-neutral-100 touch-none">
       <Info boardId={boardId} setShowChat={setShowChat} />
-        <Participants showChat={showChat} />
-        <Chat isOpen={showChat} onClose={() => setShowChat(false)} boardId={boardId} username={currentUser?.info?.name!}/>
+      <Participants showChat={showChat} />
+      <Chat
+        isOpen={showChat}
+        onClose={() => setShowChat(false)}
+        boardId={boardId}
+        username={currentUser?.info?.name!}
+      />
       <Toolbar
         canvasState={canvasState}
         setCanvasState={setCanvasState}
