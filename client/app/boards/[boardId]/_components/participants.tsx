@@ -19,7 +19,7 @@ export const Participants = ({ showChat }: Props) => {
 
   return (
     <div
-      className={`absolute h-12 top-2 bg-white rounded-md p-3 flex items-center shadow-md transition-all duration-300 ${
+      className={`max-sm:hidden absolute h-12 top-2 bg-white rounded-md p-3 flex items-center shadow-md transition-all duration-300 ${
         showChat ? "right-[425px]" : "right-2"
       }`}
     >

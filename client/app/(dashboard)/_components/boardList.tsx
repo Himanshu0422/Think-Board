@@ -1,11 +1,12 @@
 "use client";
 
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
+import { BoardCard } from "./boardCard";
 import { EmptyBoards } from "./emptyBoards";
 import { EmptyFavourites } from "./emptyFavourites";
 import { EmptySearch } from "./emptySearch";
-import { api } from "@/convex/_generated/api";
-import { BoardCard } from "./boardCard";
 import { NewBoardButton } from "./newBoardButton";
 
 interface BoardListProps {
@@ -14,6 +15,17 @@ interface BoardListProps {
     search?: string;
     favourites?: string;
   };
+}
+
+interface Board {
+  isFavourite: boolean;
+  _id: Id<"boards">;
+  _creationTime: number;
+  title: string;
+  orgId: string;
+  authorId: string;
+  authorName: string;
+  imageUrl: string;
 }
 
 export function BoardList({ orgId, query }: BoardListProps) {
@@ -55,7 +67,7 @@ export function BoardList({ orgId, query }: BoardListProps) {
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5 mt-8 pb-10">
         <NewBoardButton orgId={orgId} />
-        {data?.map((board: any) => (
+        {data?.map((board: Board) => (
           <BoardCard
             key={board._id}
             id={board._id}

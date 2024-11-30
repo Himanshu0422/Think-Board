@@ -15,17 +15,8 @@ import Link from "next/link";
 
 interface InfoProps {
   boardId: string;
-  setShowChat: (prev: any) => void
+  setShowChat: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
-const font = Poppins({
-  subsets: ["latin"],
-  weight: ["600"],
-});
-
-const TabSeparator = () => {
-  return <div className="text-neutral-300 px-1.5">|</div>;
-};
 
 export const Info = ({ boardId, setShowChat }: InfoProps) => {
   const { onOpen } = useRenameModal();
@@ -68,7 +59,7 @@ export const Info = ({ boardId, setShowChat }: InfoProps) => {
         <Button
           size="icon"
           variant="board"
-          onClick={() => setShowChat((prev: any) => !prev)}
+          onClick={() => setShowChat((prevShowChat) => !prevShowChat)}
         >
           Chat
         </Button>
@@ -87,8 +78,18 @@ export const Info = ({ boardId, setShowChat }: InfoProps) => {
   );
 };
 
+
+const font = Poppins({
+  subsets: ["latin"],
+  weight: ["600"],
+});
+
 export function InfoSkeleton() {
   return (
     <div className="absolute top-2 left-2 bg-white rounded-md px-1.5 h-12 flex items-center shadow-md w-[300px]" />
   );
 }
+
+const TabSeparator = () => {
+  return <div className="text-neutral-300 px-1.5">|</div>;
+};

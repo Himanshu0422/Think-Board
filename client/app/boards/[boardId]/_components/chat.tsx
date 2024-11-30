@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import { FC, useEffect, useRef, useState } from "react";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 
 interface ChatProps {
   isOpen: boolean;
@@ -11,39 +11,23 @@ interface ChatProps {
   username: string;
 }
 
+interface Message {
+  username: string;
+  message: string;
+}
+
 const SOCKET_SERVER_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const Chat: FC<ChatProps> = ({ isOpen, onClose, boardId, username }) => {
-  const [socket, setSocket] = useState<any>(null);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const newSocket = io(SOCKET_SERVER_URL);
-    setSocket(newSocket);
-
-    newSocket.emit("joinBoard", { boardId, username });
-
-    newSocket.on("receiveMessage", (message: any) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
-    });
-
-    fetchMessages();
-
-    return () => {
-      newSocket.disconnect();
-    };
-  }, [boardId, username]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
   const fetchMessages = async () => {
     try {
-      const response = await axios.get(
+      const response = await axios.get<Message[]>(
         `${SOCKET_SERVER_URL}/api/boards/${boardId}/messages`
       );
       setMessages(response.data);
@@ -62,6 +46,27 @@ const Chat: FC<ChatProps> = ({ isOpen, onClose, boardId, username }) => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
   };
+
+  useEffect(() => {
+    const newSocket = io(SOCKET_SERVER_URL as string);
+    setSocket(newSocket);
+
+    newSocket.emit("joinBoard", { boardId, username });
+
+    newSocket.on("receiveMessage", (message: Message) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
+
+    fetchMessages();
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [boardId, username]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   return (
     <div
@@ -90,7 +95,6 @@ const Chat: FC<ChatProps> = ({ isOpen, onClose, boardId, username }) => {
                 <strong>{msg.username}: </strong> {msg.message}
               </div>
             ))}
-            {/* Invisible div to track the bottom */}
             <div ref={messagesEndRef} />
           </div>
         )}

@@ -428,6 +428,7 @@ const Canvas = ({ boardId }: CanvasProps) => {
 
   const [showChat, setShowChat] = useState(false);
 
+  // @typescript-eslint/no-non-null-asserted-optional-chain
   return !layerIds ? (
     <Loading />
   ) : (
@@ -438,7 +439,7 @@ const Canvas = ({ boardId }: CanvasProps) => {
         isOpen={showChat}
         onClose={() => setShowChat(false)}
         boardId={boardId}
-        username={currentUser?.info?.name!}
+        username={currentUser?.info?.name || 'Guest'}
       />
       <Toolbar
         canvasState={canvasState}
