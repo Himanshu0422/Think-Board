@@ -1,5 +1,4 @@
 import { Server, Socket } from 'socket.io';
-import { produceMessage } from './kafka';
 import { pubClient, redisClient, subClient } from './redis';
 
 export const socketHandler = (io: Server) => {
@@ -18,9 +17,6 @@ export const socketHandler = (io: Server) => {
         // Also store in Redis for quick retrieval and publish to the chat channel
         await redisClient.rPush(`board:${boardId}:messages`, JSON.stringify(chatMessage));
         pubClient.publish('chatChannel', JSON.stringify({ boardId, chatMessage }));
-
-        // Producing message using kafka
-        produceMessage(message, boardId, username)
       } catch (error) {
         console.error('Failed to store message:', error);
       }
