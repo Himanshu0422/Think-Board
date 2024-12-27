@@ -1,9 +1,8 @@
 import { createClient, RedisClientType } from 'redis';
 
-// Replace these values with your Redis Cloud credentials
-const REDIS_URL = process.env.REDIS_URL || '<YOUR_REDIS_CLOUD_ENDPOINT>';
-const REDIS_PASSWORD = process.env.REDIS_PASSWORD || '<YOUR_REDIS_CLOUD_PASSWORD>';
-const REDIS_PORT = process.env.REDIS_PORT || '<YOUR_REDIS_CLOUD_PASSWORD>';
+const REDIS_URL = process.env.REDIS_URL
+const REDIS_PASSWORD = process.env.REDIS_PASSWORD
+const REDIS_PORT = process.env.REDIS_PORT
 
 const redisClient: RedisClientType = createClient({
   password: REDIS_PASSWORD,
